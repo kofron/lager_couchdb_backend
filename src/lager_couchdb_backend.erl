@@ -62,6 +62,8 @@ do_log(Level, Date, Time, Message, #state{host=H,port=P,db=D}=SD) ->
 				      erlang:list_to_binary(lists:flatten(Time))},
 				     {<<"date">>,
 				      erlang:list_to_binary(lists:flatten(Date))},
+				     {<<"node">>,
+				      erlang:atom_to_binary(node(),latin1)},
 				     {<<"message">>, 
 				      erlang:list_to_binary(lists:flatten(Message))}
 				    ],RawDoc),
