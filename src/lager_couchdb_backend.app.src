@@ -1,11 +1,12 @@
 {application, lager_couchdb_backend,
  [
   {description, ""},
-  {vsn, "1"},
+  {vsn, "0.1"},
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+		  inets
                  ]},
   {mod, { lager_couchdb_backend_app, []}},
   {env, []}

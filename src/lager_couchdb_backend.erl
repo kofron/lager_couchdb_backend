@@ -53,19 +53,33 @@ config_val(C, Params, Default) ->
 %% The meat of the backend.  Uses couchbeam and is pretty simple
 do_log(Level, Date, Time, Message, #state{host=H,port=P,db=D}=SD) ->
     Server = couchbeam:server_connection(H,P),
-    {ok, Db} = couchbeam:open_db(Server,D),
-    RawDoc = {[]},
-    FinalDoc = couchbeam_doc:extend([
-				     {<<"level">>,
-				      Level},
-				     {<<"time">>,
-				      erlang:list_to_binary(lists:flatten(Time))},
-				     {<<"date">>,
-				      erlang:list_to_binary(lists:flatten(Date))},
-				     {<<"node">>,
-				      erlang:atom_to_binary(node(),latin1)},
-				     {<<"message">>, 
-				      erlang:list_to_binary(lists:flatten(Message))}
-				    ],RawDoc),
-    couchbeam:save_doc(Db, FinalDoc),
+    Url = make_url(H,P,D),
+    JsonMsg = to_json(Level, Date, Time, Message),
+    io:format("sending ~p~n",[JsonMsg]),
+    Resp = httpc:request(post, {Url,
+    			 [],
+                         "application/json",
+                         JsonMsg},
+                         [],
+                         []),
+   io:format("got response: ~p~n",[Resp]),
     SD.
+
+make_url(Host,Port,DbName) ->
+lists:flatten(io_lib:format("http://~s:~B/~s",[Host,Port,DbName])).
+
+to_json(Level, Date, Time, Message) ->
+ FString = "{\"node\":\"~s\", 
+             \"message\":\"~s\",
+             \"date\":\"~s\",
+             \"time\":\"~s\",
+             \"level\":\"~s\"}",
+ Node = node_string(),
+ LevelStr = make_level_str(Level),
+ lists:flatten(io_lib:format(FString,[Node,Message,Date,Time,LevelStr])).
+
+node_string() ->
+ erlang:atom_to_list(node()).
+
+make_level_str(LevelNum) ->
+ erlang:atom_to_list(lager_util:num_to_level(LevelNum)).
