@@ -55,14 +55,12 @@ do_log(Level, Date, Time, Message, #state{host=H,port=P,db=D}=SD) ->
     Server = couchbeam:server_connection(H,P),
     Url = make_url(H,P,D),
     JsonMsg = to_json(Level, Date, Time, Message),
-    io:format("sending ~p~n",[JsonMsg]),
     Resp = httpc:request(post, {Url,
     			 [],
                          "application/json",
                          JsonMsg},
                          [],
                          []),
-   io:format("got response: ~p~n",[Resp]),
     SD.
 
 make_url(Host,Port,DbName) ->
