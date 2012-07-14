@@ -14,10 +14,11 @@
 
 init(Args) ->
     Level = config_val(level, Args, info),
+    LevelNum = lager_util:level_to_num(Level),
     Host = config_val(host, Args, "127.0.0.1"),
     Port = config_val(port, Args, 5984),
     Db = config_val(db_name, Args, "lager"),
-    {ok, #state{level = Level, host = Host, port = Port, db=Db}}.
+    {ok, #state{level = LevelNum, host = Host, port = Port, db=Db}}.
 
 handle_call({set_loglevel, NewLevel}, SD) ->
     NewState = SD#state{level=lager_util:level_to_num(NewLevel)},
